@@ -1,0 +1,112 @@
+
+
+import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Scanner;
+
+class Question {
+    String prompt;
+
+    Question(String prompt) {
+        this.prompt = prompt;
+    }
+
+    boolean isCorrect(String answer) {
+        return false; // Default implementation, to be overridden by subclasses
+    }
+
+    void display() {
+        System.out.println(prompt);
+    }
+}
+
+class MultipleChoiceQuestion extends Question {
+    List<String> options;
+    int correctOption;
+
+    MultipleChoiceQuestion(String prompt, List<String> options, int correctOption) {
+        super(prompt);
+        this.options = options;
+        this.correctOption = correctOption;
+    }
+
+    @Override
+    boolean isCorrect(String answer) {
+        try {
+            int userAnswer = Integer.parseInt(answer);
+            return userAnswer == correctOption;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    @Override
+    void display() {
+        super.display();
+        for (int i = 0; i < options.size(); i++) {
+            System.out.println((i + 1) + ". " + options.get(i));
+        }
+    }
+}
+
+class TrueFalseQuestion extends Question {
+    boolean correctAnswer;
+
+    TrueFalseQuestion(String prompt, boolean correctAnswer) {
+        super(prompt);
+        this.correctAnswer = correctAnswer;
+    }
+
+    @Override
+    boolean isCorrect(String answer) {
+        return answer.equalsIgnoreCase("true") || answer.equalsIgnoreCase("false");
+    }
+}
+
+class Quiz {
+    List<Question> questions;
+
+    Quiz() {
+        this.questions = new ArrayList<>();
+    }
+
+    void addQuestion(Question question) {
+        questions.add(question);
+    }
+
+    void startQuiz() {
+        Scanner scanner = new Scanner(System.in);
+        int score = 0;
+
+        for (Question question : questions) {
+            question.display();
+            System.out.print("Your answer: ");
+            String userAnswer = scanner.nextLine();
+
+            if (question.isCorrect(userAnswer)) {
+                System.out.println("Correct!\n");
+                score++;
+            } else {
+                System.out.println("Incorrect.\n");
+            }
+        }
+
+        System.out.println("Quiz complete. Your score: " + score + "/" + questions.size());
+    }
+}
+
+public class QuizApp {
+    public static void main(String[] args) {
+        Quiz quiz = new Quiz();
+
+        MultipleChoiceQuestion mcq = new MultipleChoiceQuestion("What is the capital of France?",
+                List.of("Berlin", "Paris", "Madrid", "Rome"), 2);
+        TrueFalseQuestion tfq = new TrueFalseQuestion("The Earth is flat.", false);
+
+        quiz.addQuestion(mcq);
+        quiz.addQuestion(tfq);
+
+        quiz.startQuiz();
+    }
+}
